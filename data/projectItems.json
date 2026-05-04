@@ -1,0 +1,1711 @@
+[
+  {
+    "id": "app",
+    "name": "App.xaml.cs",
+    "path": "App.xaml.cs",
+    "type": "Bootstrap",
+    "layer": "Application",
+    "description": "WPF application entry point. In the Application_Startup event, it calls Startup.Execute(e.Args).",
+    "responsibilities": [
+      "Start the WPF application",
+      "Forward startup arguments",
+      "Keep startup orchestration outside the View"
+    ],
+    "dependsOn": [
+      "startup"
+    ]
+  },
+  {
+    "id": "startup",
+    "name": "Startup.cs",
+    "path": "Startup.cs",
+    "type": "Bootstrap",
+    "layer": "Application",
+    "description": "Main initialization flow: single-instance mutex, culture setup, automation hooks, splash screen, MainWindow creation, and primary DataContext setup.",
+    "responsibilities": [
+      "Configure the initial runtime environment",
+      "Create the ViewModelFactory",
+      "Open the SplashScreen and MainWindow"
+    ],
+    "dependsOn": [
+      "splash-model",
+      "splash-vm",
+      "main-window",
+      "main-vm",
+      "vm-factory"
+    ]
+  },
+  {
+    "id": "main-window",
+    "name": "MainWindow.xaml / .cs",
+    "path": "View/MainWindow.xaml",
+    "type": "View",
+    "layer": "Views",
+    "description": "Main application shell. Defines DataTemplates for the primary screens and renders the CurrentView from MainWindowViewModel.",
+    "responsibilities": [
+      "Host the main navigation shell",
+      "Declare DataTemplates for screens",
+      "Connect the sidebar/menu to the ViewModel"
+    ],
+    "dependsOn": [
+      "main-vm",
+      "case-manager-view",
+      "case-design-view",
+      "reports-view",
+      "settings-view"
+    ]
+  },
+  {
+    "id": "main-vm",
+    "name": "MainWindowViewModel.cs",
+    "path": "ViewModel/MainWindowViewModel.cs",
+    "type": "ViewModel",
+    "layer": "ViewModels",
+    "description": "Primary ViewModel. Holds ViewsDictionary, CurrentView, MenuSelection, global commands, and overlay state.",
+    "responsibilities": [
+      "Control application navigation",
+      "Manage the active overlay",
+      "Expose global edit/help commands"
+    ],
+    "dependsOn": [
+      "vm-factory",
+      "overlay-controller",
+      "notification-vm",
+      "delegate-command"
+    ]
+  },
+  {
+    "id": "vm-factory",
+    "name": "ViewModelFactory.cs",
+    "path": "ViewModel/Factory/ViewModelFactory.cs",
+    "type": "Factory",
+    "layer": "Factories",
+    "description": "Factory that creates and reuses primary ViewModels, connecting CaseManagerModel and CaseDesignModel to the MVVM flow.",
+    "responsibilities": [
+      "Create primary ViewModels",
+      "Reuse shared instances",
+      "Inject Models into ViewModels"
+    ],
+    "dependsOn": [
+      "case-manager-model",
+      "case-design-model",
+      "case-manager-vm",
+      "case-design-vm"
+    ]
+  },
+  {
+    "id": "case-manager-view",
+    "name": "CaseManagerView.xaml / .cs",
+    "path": "View/CaseManagerView.xaml",
+    "type": "View",
+    "layer": "Views",
+    "description": "Case management screen. Renders tabs, case properties, case builder, and actions such as export, move, duplicate, and delete.",
+    "responsibilities": [
+      "Display the case list/tree",
+      "Host tabs and properties",
+      "Delegate actions to CaseManagerViewModel"
+    ],
+    "dependsOn": [
+      "case-manager-vm",
+      "case-properties-view",
+      "case-builder-view",
+      "tree-objects"
+    ]
+  },
+  {
+    "id": "case-manager-vm",
+    "name": "CaseManagerViewModel.cs",
+    "path": "ViewModel/CaseManagerViewModel.cs",
+    "type": "ViewModel",
+    "layer": "ViewModels",
+    "description": "Coordinates the case management screen, opened tabs, recent cases, the case tree, and manipulation commands.",
+    "responsibilities": [
+      "Control cases and tabs",
+      "Expose case management commands",
+      "Interact with CaseManagerModel"
+    ],
+    "dependsOn": [
+      "case-manager-model",
+      "observable-vm",
+      "tab-vm",
+      "recent-cases-manager"
+    ]
+  },
+  {
+    "id": "case-design-view",
+    "name": "CaseDesignView.xaml / .cs",
+    "path": "View/CaseDesignView.xaml",
+    "type": "View",
+    "layer": "Views",
+    "description": "Case design screen. Integrates the block list, canvas, properties panel, and visual connection components.",
+    "responsibilities": [
+      "Render the visual designer",
+      "Host the canvas and blocks",
+      "Connect design DataTemplates"
+    ],
+    "dependsOn": [
+      "case-design-vm",
+      "design-canvas-view",
+      "blocks-container-view",
+      "properties-visualization-view"
+    ]
+  },
+  {
+    "id": "case-design-vm",
+    "name": "CaseDesignViewModel.cs",
+    "path": "ViewModel/CaseDesignViewModel.cs",
+    "type": "ViewModel",
+    "layer": "ViewModels",
+    "description": "Central design ViewModel. Coordinates the canvas, available blocks, properties, opened case, and editor state.",
+    "responsibilities": [
+      "Control the case editor",
+      "Synchronize canvas and properties",
+      "Use CaseDesignModel and CaseManagerModel"
+    ],
+    "dependsOn": [
+      "case-design-model",
+      "case-manager-model",
+      "design-canvas-vm",
+      "blocks-container-vm"
+    ]
+  },
+  {
+    "id": "case-builder-view",
+    "name": "CaseBuilderView.xaml / .cs",
+    "path": "View/CaseBuilderView.xaml",
+    "type": "View",
+    "layer": "Views",
+    "description": "View for building and editing case inputs and variable groups.",
+    "responsibilities": [
+      "Display input groups",
+      "Allow editing through bindings",
+      "Render ScreeningInputViewModel"
+    ],
+    "dependsOn": [
+      "case-builder-vm",
+      "screening-input-vm"
+    ]
+  },
+  {
+    "id": "case-builder-vm",
+    "name": "CaseBuilderViewModel.cs",
+    "path": "ViewModel/CaseBuilderViewModel.cs",
+    "type": "ViewModel",
+    "layer": "ViewModels",
+    "description": "Case builder ViewModel connected to inputs, groups, and screening variables.",
+    "responsibilities": [
+      "Manage case inputs",
+      "Expose builder commands",
+      "Synchronize data with the model"
+    ],
+    "dependsOn": [
+      "case-design-model",
+      "delegate-command",
+      "current-building-block"
+    ]
+  },
+  {
+    "id": "case-properties-view",
+    "name": "CasePropertiesView.xaml / .cs",
+    "path": "View/CasePropertiesView.xaml",
+    "type": "View",
+    "layer": "Views",
+    "description": "Container View for case properties. Switches between property panels, logs, and hierarchy snapshots.",
+    "responsibilities": [
+      "Host property subviews",
+      "Render DataTemplates",
+      "Separate visualization from logic"
+    ],
+    "dependsOn": [
+      "case-properties-vm",
+      "properties-visualization-view",
+      "simulation-log-view",
+      "hierarchy-snapshot-view"
+    ]
+  },
+  {
+    "id": "case-properties-vm",
+    "name": "CasePropertiesViewModel.cs",
+    "path": "ViewModel/ComponentViewModel/CasePropertiesViewModel.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "Container ViewModel for case properties, integrating properties, simulation logs, and hierarchy visualization.",
+    "responsibilities": [
+      "Organize property subcomponents",
+      "Maintain the properties tab state",
+      "Create specific visualizations"
+    ],
+    "dependsOn": [
+      "properties-visualization-vm",
+      "simulation-log-vm",
+      "hierarchy-snapshot-vm"
+    ]
+  },
+  {
+    "id": "properties-visualization-view",
+    "name": "PropertiesVisualization.xaml / .cs",
+    "path": "View/CasePropertiesComponents/PropertiesVisualization.xaml",
+    "type": "Property View",
+    "layer": "View / Case Properties",
+    "description": "Component that visually organizes property categories such as Life of Field, OPEX, CAPEX/Drilling, and Reservoir Profiling.",
+    "responsibilities": [
+      "Render property categories",
+      "Apply DataTemplates",
+      "Separate visualization from calculations"
+    ],
+    "dependsOn": [
+      "properties-visualization-vm",
+      "life-field-view",
+      "operating-expenses-view",
+      "drilling-expenses-view",
+      "reservoir-profiling-view"
+    ]
+  },
+  {
+    "id": "properties-visualization-vm",
+    "name": "PropertiesVisualizationViewModel.cs",
+    "path": "ViewModel/ComponentViewModel/PropertiesVisualizationViewModel.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "ViewModel for the property visualization panel, grouping sections and data shown in the case properties area.",
+    "responsibilities": [
+      "Prepare property sections",
+      "Expose grouped data",
+      "Connect variables to the UI"
+    ],
+    "dependsOn": [
+      "life-field-vm",
+      "list-properties-vm",
+      "drilling-expenses-vm",
+      "operating-expenses-vm",
+      "reservoir-profiling-vm"
+    ]
+  },
+  {
+    "id": "design-canvas-view",
+    "name": "DesignCanvas.xaml / .cs",
+    "path": "View/DesignComponents/DesignCanvas.xaml",
+    "type": "Design View",
+    "layer": "View / Design Canvas",
+    "description": "Visual editor canvas. Renders CanvasBlock, ConnectionLine, and BlockConnector through DataTemplates.",
+    "responsibilities": [
+      "Render blocks and connections",
+      "Handle canvas interactions",
+      "Delegate state to DesignCanvasViewModel"
+    ],
+    "dependsOn": [
+      "design-canvas-vm",
+      "canvas-block-view",
+      "connection-line-view",
+      "block-connector-view"
+    ]
+  },
+  {
+    "id": "design-canvas-vm",
+    "name": "DesignCanvasViewModel.cs",
+    "path": "ViewModel/DesignComponentsViewModel/DesignCanvasViewModel.cs",
+    "type": "Design VM",
+    "layer": "ViewModels / Design Canvas",
+    "description": "Main canvas ViewModel. Controls blocks, lines, history, selection, copy/paste, and the entity bound to the canvas.",
+    "responsibilities": [
+      "Manage canvas objects",
+      "Control history/undo-redo",
+      "Synchronize blocks and connections"
+    ],
+    "dependsOn": [
+      "canvas-block-vm",
+      "connection-line-vm",
+      "history-item-vm",
+      "canvas-helper"
+    ]
+  },
+  {
+    "id": "canvas-block-view",
+    "name": "CanvasBlock.xaml / .cs",
+    "path": "View/DesignComponents/CanvasBlock.xaml",
+    "type": "Design View",
+    "layer": "View / Design Canvas",
+    "description": "Visual component for a block inside the canvas, with connectors, selection, movement, and editing interactions.",
+    "responsibilities": [
+      "Render a canvas block",
+      "Capture drag/selection",
+      "Display block connectors"
+    ],
+    "dependsOn": [
+      "canvas-block-vm",
+      "block-connector-view",
+      "design-canvas-vm"
+    ]
+  },
+  {
+    "id": "canvas-block-vm",
+    "name": "CanvasBlockViewModel.cs",
+    "path": "ViewModel/DesignComponentsViewModel/CanvasBlockViewModel.cs",
+    "type": "Design VM",
+    "layer": "ViewModels / Design Canvas",
+    "description": "Represents a canvas block, including position, entity, connectors, hierarchical children, and selection events.",
+    "responsibilities": [
+      "Maintain block state",
+      "Manage connectors",
+      "Integrate hierarchy and domain entity"
+    ],
+    "dependsOn": [
+      "base-canvas-object",
+      "block-connector-vm",
+      "design-canvas-vm",
+      "observable-vm"
+    ]
+  },
+  {
+    "id": "block-connector-view",
+    "name": "BlockConnector.xaml / .cs",
+    "path": "View/DesignComponents/BlockConnector.xaml",
+    "type": "Design View",
+    "layer": "View / Design Canvas",
+    "description": "Visual connector component for a block. Participates in drag/drop and connection creation/removal.",
+    "responsibilities": [
+      "Render the connection point",
+      "Support drag/drop",
+      "Trigger connect/delete actions"
+    ],
+    "dependsOn": [
+      "block-connector-vm",
+      "connection-line-vm",
+      "canvas-helper"
+    ]
+  },
+  {
+    "id": "block-connector-vm",
+    "name": "BlockConnectorViewModel.cs",
+    "path": "ViewModel/DesignComponentsViewModel/BlockConnectorViewModel.cs",
+    "type": "Design VM",
+    "layer": "ViewModels / Design Canvas",
+    "description": "Logical state of a canvas connector, including parent block, offset, color, and connected lines.",
+    "responsibilities": [
+      "Maintain the parent-block relationship",
+      "Control connected lines",
+      "Allow connector clone/removal"
+    ],
+    "dependsOn": [
+      "base-canvas-object",
+      "connection-line-vm",
+      "canvas-helper"
+    ]
+  },
+  {
+    "id": "connection-line-view",
+    "name": "ConnectionLine.xaml / .cs",
+    "path": "View/DesignComponents/ConnectionLine.xaml",
+    "type": "Design View",
+    "layer": "View / Design Canvas",
+    "description": "Visual component for connection lines between canvas blocks/connectors.",
+    "responsibilities": [
+      "Render the connection",
+      "Allow visual removal",
+      "Synchronize with the line ViewModel"
+    ],
+    "dependsOn": [
+      "connection-line-vm",
+      "design-canvas-vm",
+      "canvas-helper"
+    ]
+  },
+  {
+    "id": "connection-line-vm",
+    "name": "ConnectionLineViewModel.cs",
+    "path": "ViewModel/DesignComponentsViewModel/ConnectionLineViewModel.cs",
+    "type": "Design VM",
+    "layer": "ViewModels / Design Canvas",
+    "description": "Represents a line/connection between canvas connectors.",
+    "responsibilities": [
+      "Maintain connection endpoints",
+      "Update geometry",
+      "Integrate canvas actions"
+    ],
+    "dependsOn": [
+      "base-canvas-object",
+      "block-connector-vm"
+    ]
+  },
+  {
+    "id": "blocks-container-view",
+    "name": "BlocksContainer.xaml / .cs",
+    "path": "View/DesignComponents/BlocksContainer.xaml",
+    "type": "Design View",
+    "layer": "View / Design Canvas",
+    "description": "Visual container for the blocks available to build a case.",
+    "responsibilities": [
+      "List available blocks",
+      "Support dragging blocks into the canvas",
+      "Integrate detachable window behavior"
+    ],
+    "dependsOn": [
+      "blocks-container-vm"
+    ]
+  },
+  {
+    "id": "blocks-container-vm",
+    "name": "BlocksContainerViewModel.cs",
+    "path": "ViewModel/DesignComponentsViewModel/BlocksContainerViewModel.cs",
+    "type": "Design VM",
+    "layer": "ViewModels / Design Canvas",
+    "description": "ViewModel for the blocks list/container, including detachable window support.",
+    "responsibilities": [
+      "Organize block groups",
+      "Control the detachable window",
+      "Communicate with CaseDesignViewModel"
+    ],
+    "dependsOn": [
+      "case-design-vm",
+      "detach-window-vm"
+    ]
+  },
+  {
+    "id": "case-manager-model",
+    "name": "CaseManagerModel.cs",
+    "path": "Model/CaseManagerModel.cs",
+    "type": "Model",
+    "layer": "Models",
+    "description": "Model responsible for case management operations, including loading, exporting, and integration with cost-related modals.",
+    "responsibilities": [
+      "Manage case data",
+      "Run persistence/export operations",
+      "Serve CaseManagerViewModel"
+    ],
+    "dependsOn": [
+      "cost-index-modal-vm",
+      "notification-helper"
+    ]
+  },
+  {
+    "id": "case-design-model",
+    "name": "CaseDesignModel.cs",
+    "path": "Model/CaseDesignModel.cs",
+    "type": "Model",
+    "layer": "Models",
+    "description": "Model used by the case design area, serving data to the canvas, blocks, and properties.",
+    "responsibilities": [
+      "Provide design data",
+      "Support case creation/editing",
+      "Keep domain logic separate from UI"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "splash-model",
+    "name": "SplashScreenModel.cs",
+    "path": "Model/SplashScreenModel.cs",
+    "type": "Model",
+    "layer": "Models",
+    "description": "Manages opening and updating the SplashScreen during initialization.",
+    "responsibilities": [
+      "Open the splash screen",
+      "Update loading status",
+      "Control displayed version information"
+    ],
+    "dependsOn": [
+      "splash-vm",
+      "splash-view"
+    ]
+  },
+  {
+    "id": "splash-view",
+    "name": "SplashScreen.xaml / .cs",
+    "path": "View/SplashScreen.xaml",
+    "type": "View",
+    "layer": "Views",
+    "description": "Initial loading screen for the application.",
+    "responsibilities": [
+      "Display startup progress",
+      "Show status/version information",
+      "Keep startup UI simple"
+    ],
+    "dependsOn": [
+      "splash-vm"
+    ]
+  },
+  {
+    "id": "splash-vm",
+    "name": "SplashScreenViewModel.cs",
+    "path": "ViewModel/SplashScreenViewModel.cs",
+    "type": "ViewModel",
+    "layer": "ViewModels",
+    "description": "SplashScreen ViewModel that exposes status text and version information during startup.",
+    "responsibilities": [
+      "Expose loading status",
+      "Update database/app version information",
+      "Separate splash state from the View"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "observable-vm",
+    "name": "ObservableViewModel.cs",
+    "path": "ViewModel/ObservableViewModel.cs",
+    "type": "State VM",
+    "layer": "ViewModels",
+    "description": "Shared/singleton observable state object used by multiple screens and components.",
+    "responsibilities": [
+      "Share global state",
+      "Expose observable collections",
+      "Centralize data used by multiple ViewModels"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "viewmodel-base",
+    "name": "ViewModelBase.cs",
+    "path": "ViewModel/ViewModelBase.cs",
+    "type": "Base VM",
+    "layer": "ViewModels",
+    "description": "Base class for ViewModels with property-change notification support for WPF binding.",
+    "responsibilities": [
+      "Implement property change notification",
+      "Standardize ViewModels",
+      "Reduce repeated code"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "delegate-command",
+    "name": "DelegateCommand.cs",
+    "path": "Commands/DelegateCommand.cs",
+    "type": "Command",
+    "layer": "Commands",
+    "description": "ICommand implementation used to connect XAML buttons/actions to ViewModel methods.",
+    "responsibilities": [
+      "Wrap Execute",
+      "Wrap CanExecute",
+      "Support MVVM through binding"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "overlay-controller",
+    "name": "OverlayController.cs",
+    "path": "ViewModel/OverlayController.cs",
+    "type": "Controller",
+    "layer": "ViewModels",
+    "description": "Controls opening and closing centralized overlays in MainWindowViewModel.",
+    "responsibilities": [
+      "Activate/deactivate overlays",
+      "Define the active overlay content",
+      "Avoid direct coupling to MainWindow"
+    ],
+    "dependsOn": [
+      "main-vm",
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "notification-vm",
+    "name": "NotificationViewModel.cs",
+    "path": "ViewModel/NotificationViewModel.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "State for notifications displayed by the application.",
+    "responsibilities": [
+      "Expose messages",
+      "Control notification state/position",
+      "Integrate with NotificationHelper"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "recent-cases-manager",
+    "name": "RecentCasesManager.cs",
+    "path": "Services/RecentCasesManager.cs",
+    "type": "Service",
+    "layer": "Services",
+    "description": "Service for maintaining and retrieving recent case history.",
+    "responsibilities": [
+      "Register recent cases",
+      "Persist/retrieve history",
+      "Serve CaseManager workflows"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "dialog-service",
+    "name": "DialogService.cs / IDialogService.cs",
+    "path": "Services/DialogService.cs",
+    "type": "Service",
+    "layer": "Services",
+    "description": "Abstraction for opening dialogs and reducing direct UI dependency inside ViewModels.",
+    "responsibilities": [
+      "Open dialogs",
+      "Isolate MessageBox/windows",
+      "Make ViewModels easier to test"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "canvas-helper",
+    "name": "CanvasHelper.cs",
+    "path": "Utilities/CanvasHelper.cs",
+    "type": "Utility",
+    "layer": "Utilities",
+    "description": "Shared helper for canvas operations, including active canvas reference and support for visual interactions.",
+    "responsibilities": [
+      "Support the active canvas",
+      "Centralize design helpers",
+      "Be used by blocks/connectors/lines"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "tree-helper",
+    "name": "TreeHelper.cs",
+    "path": "Utilities/TreeHelper.cs",
+    "type": "Utility",
+    "layer": "Utilities",
+    "description": "Helper for tree/hierarchy operations used by cases, groups, branches, and items.",
+    "responsibilities": [
+      "Support tree navigation",
+      "Find/organize nodes",
+      "Reduce repeated tree logic"
+    ],
+    "dependsOn": [
+      "tree-objects"
+    ]
+  },
+  {
+    "id": "notification-helper",
+    "name": "NotificationHelper.cs",
+    "path": "Utilities/NotificationHelper.cs",
+    "type": "Utility",
+    "layer": "Utilities",
+    "description": "Helper for creating visual notifications in the application.",
+    "responsibilities": [
+      "Create notifications",
+      "Standardize messages",
+      "Integrate UI and ViewModels"
+    ],
+    "dependsOn": [
+      "notification-vm"
+    ]
+  },
+  {
+    "id": "tree-objects",
+    "name": "TreeObjects/*.cs",
+    "path": "DataObjects/TreeObjects",
+    "type": "Data Object",
+    "layer": "Data Objects",
+    "description": "Tree object group: TreeItem, TreeCase, TreeGroup, TreeBranch, TreeCaseCommon, and HVModel.",
+    "responsibilities": [
+      "Represent case hierarchy",
+      "Support TreeView binding",
+      "Encapsulate node actions"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "current-building-block",
+    "name": "CurrentBuildingBlock.cs",
+    "path": "DataObjects/CurrentBuildingBlock.cs",
+    "type": "Data Object",
+    "layer": "Data Objects",
+    "description": "Data object for the currently selected/manipulated building block.",
+    "responsibilities": [
+      "Represent the current block",
+      "Support case design",
+      "Share selection between components"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "custom-modals",
+    "name": "CustomComponents/*.xaml",
+    "path": "CustomComponents",
+    "type": "Custom Component",
+    "layer": "Custom Components",
+    "description": "Reusable modal and component group: CreateCase, Confirmation, CostIndex, DetachWindow, TreeSelection, NetworkSecurity, Duplicate, EditName, Branch, and Group.",
+    "responsibilities": [
+      "Reuse modal UI",
+      "Isolate specific UI components",
+      "Support create/edit/confirmation flows"
+    ],
+    "dependsOn": [
+      "modal-vms"
+    ]
+  },
+  {
+    "id": "modal-vms",
+    "name": "Modal ViewModels",
+    "path": "ViewModel/ComponentViewModel/*Modal*.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "Modal ViewModel group: Confirmation, CreateCase, CostIndex, DetachWindow, TreeSelection, NetworkSecurity, Duplicate/EditName, and overlays.",
+    "responsibilities": [
+      "Control modal state",
+      "Expose local commands",
+      "Communicate confirm/cancel results"
+    ],
+    "dependsOn": [
+      "viewmodel-base",
+      "overlay-controller"
+    ]
+  },
+  {
+    "id": "variable-vms",
+    "name": "Variable*.cs / Parent*.cs",
+    "path": "ViewModel/Variable*.cs",
+    "type": "ViewModel Group",
+    "layer": "ViewModels",
+    "description": "ViewModel group for variables, categories, groups, single variables, parent properties, and screening input.",
+    "responsibilities": [
+      "Represent editable variables",
+      "Group inputs",
+      "Serve property panels"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "property-section-views",
+    "name": "LifeOfField/OPEX/Drilling/Reservoir Views",
+    "path": "View/CasePropertiesComponents",
+    "type": "Property View",
+    "layer": "View / Case Properties",
+    "description": "Property subview group: LifeOfField, OperatingExpenses, DrillingExpenses, ReservoirProfiling, and ListProperties.",
+    "responsibilities": [
+      "Display property sections",
+      "Render variables",
+      "Separate each visual domain"
+    ],
+    "dependsOn": [
+      "property-section-vms",
+      "variable-vms"
+    ]
+  },
+  {
+    "id": "property-section-vms",
+    "name": "LifeOfField/OPEX/Drilling/Reservoir VMs",
+    "path": "ViewModel/ComponentViewModel",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "ViewModel group for property sections, including LifeOfField, ListProperties, DrillingExpenses, OperatingExpenses, and ReservoirProfiling.",
+    "responsibilities": [
+      "Prepare section data",
+      "Expose variables and calculations",
+      "Serve PropertiesVisualizationViewModel"
+    ],
+    "dependsOn": [
+      "variable-vms",
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "reports-view",
+    "name": "ReportsView.xaml / ReportsViewModel.cs",
+    "path": "View/ReportsView.xaml + ViewModel/ReportsViewModel.cs",
+    "type": "Feature",
+    "layer": "Views",
+    "description": "Reports feature composed of its own View and ViewModel.",
+    "responsibilities": [
+      "Display reports",
+      "Prepare analysis data",
+      "Separate UI and logic"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "settings-view",
+    "name": "SettingsView.xaml / SettingsViewModel.cs",
+    "path": "View/SettingsView.xaml + ViewModel/SettingsViewModel.cs",
+    "type": "Feature",
+    "layer": "Views",
+    "description": "Application settings feature.",
+    "responsibilities": [
+      "Display options",
+      "Control settings state",
+      "Connect the screen to its ViewModel"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "resources",
+    "name": "Resources/* + Dictionaries/*.xaml",
+    "path": "Resources / Dictionaries",
+    "type": "Resource Group",
+    "layer": "Resources",
+    "description": "Asset and XAML resource group: block images, facilities, icons, fonts, templates, colors, and styles.",
+    "responsibilities": [
+      "Centralize visual assets",
+      "Standardize the theme",
+      "Support blocks and UI icons"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "command-reference",
+    "name": "CommandReference.cs",
+    "path": "Commands/CommandReference.cs",
+    "type": "Command",
+    "layer": "Commands",
+    "description": "Central command reference/helper file used to organize command-related bindings and command access patterns.",
+    "responsibilities": [
+      "Document or centralize command references",
+      "Support command discoverability",
+      "Complement DelegateCommand usage"
+    ],
+    "dependsOn": [
+      "delegate-command"
+    ]
+  },
+  {
+    "id": "controls-group",
+    "name": "Custom Controls",
+    "path": "Controls/psTextBox.cs + Controls/psUOM.cs",
+    "type": "Custom Component",
+    "layer": "Custom Components",
+    "description": "Reusable WPF controls used by input forms and unit-of-measure editing screens.",
+    "responsibilities": [
+      "Encapsulate reusable UI control behavior",
+      "Support consistent input handling",
+      "Reduce repeated XAML/control logic"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "converters",
+    "name": "ConvertorClass.cs",
+    "path": "Converters/ConvertorClass.cs",
+    "type": "Utility",
+    "layer": "Utilities",
+    "description": "WPF value converters used by bindings to transform values for display or interaction logic.",
+    "responsibilities": [
+      "Convert bound values for XAML",
+      "Keep formatting logic out of Views",
+      "Support reusable binding transformations"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "lost-focus-behavior",
+    "name": "LostFocusCommandBehavior.cs",
+    "path": "Behaviours/LostFocusCommandBehavior.cs",
+    "type": "Utility",
+    "layer": "Utilities",
+    "description": "Attached behavior that allows a command to be triggered when a control loses focus.",
+    "responsibilities": [
+      "Bridge WPF focus events to MVVM commands",
+      "Avoid code-behind event handlers",
+      "Support validation/update flows"
+    ],
+    "dependsOn": [
+      "delegate-command"
+    ]
+  },
+  {
+    "id": "binding-proxy-service",
+    "name": "BindingProxy.cs",
+    "path": "Services/BindingProxy.cs",
+    "type": "Service",
+    "layer": "Services",
+    "description": "Binding proxy used to expose DataContext values across XAML scopes where normal binding inheritance does not reach.",
+    "responsibilities": [
+      "Bridge DataContext boundaries",
+      "Support complex XAML bindings",
+      "Reduce code-behind workarounds"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "idialog-service",
+    "name": "IDialogService.cs",
+    "path": "Services/IDialogService.cs",
+    "type": "Service",
+    "layer": "Services",
+    "description": "Dialog service contract used to abstract modal/dialog behavior from ViewModels.",
+    "responsibilities": [
+      "Define dialog operations",
+      "Keep ViewModels decoupled from concrete windows",
+      "Support testable dialog workflows"
+    ],
+    "dependsOn": [
+      "dialog-service"
+    ]
+  },
+  {
+    "id": "network-security-model",
+    "name": "NetworkSecurityModel.cs",
+    "path": "Model/NetworkSecurityModel.cs",
+    "type": "Model",
+    "layer": "Models",
+    "description": "Model that supports the network security modal and related validation/security data.",
+    "responsibilities": [
+      "Represent network/security configuration data",
+      "Support NetworkSecurityViewModel",
+      "Keep security state separate from UI"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "ui-helpers",
+    "name": "UI Helper Utilities",
+    "path": "Utilities/UIHelper.cs + Utilities/ToolTipHelper.cs + Utilities/AutoFontSizeBehaviour.cs",
+    "type": "Utility",
+    "layer": "Utilities",
+    "description": "UI helper utilities for common visual behavior, tooltip handling, and automatic font sizing.",
+    "responsibilities": [
+      "Centralize reusable UI behavior",
+      "Improve visual consistency",
+      "Avoid repeated UI helper code"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "keyboard-helper",
+    "name": "KeyboardHelper.cs",
+    "path": "Utilities/KeyboardHelper.cs",
+    "type": "Utility",
+    "layer": "Utilities",
+    "description": "Keyboard helper used to centralize keyboard interaction behavior.",
+    "responsibilities": [
+      "Normalize keyboard handling",
+      "Support shortcuts or key-driven workflows",
+      "Keep key handling reusable"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "highlight-manager",
+    "name": "HighlightManager.cs",
+    "path": "Utilities/HighlightManager.cs",
+    "type": "Utility",
+    "layer": "Utilities",
+    "description": "Utility responsible for highlight/visual emphasis behavior across UI components.",
+    "responsibilities": [
+      "Control highlight state",
+      "Support visual feedback",
+      "Centralize emphasis logic"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "log-manager",
+    "name": "LogManager.cs",
+    "path": "Utilities/LogManager.cs",
+    "type": "Utility",
+    "layer": "Utilities",
+    "description": "Utility for application logging and log-related operations.",
+    "responsibilities": [
+      "Centralize log writing/handling",
+      "Support diagnostics",
+      "Provide shared logging behavior"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "simulation-helper",
+    "name": "SimulationHelper.cs",
+    "path": "Utilities/SimulationHelper.cs",
+    "type": "Utility",
+    "layer": "Utilities",
+    "description": "Helper for simulation-related operations used by simulation logs and analysis workflows.",
+    "responsibilities": [
+      "Support simulation workflows",
+      "Centralize simulation helper logic",
+      "Serve simulation log components"
+    ],
+    "dependsOn": [
+      "simulation-log-vm"
+    ]
+  },
+  {
+    "id": "simulation-log-exporter",
+    "name": "SimulationLogExporter.cs",
+    "path": "Utilities/SimulationLogExporter.cs",
+    "type": "Utility",
+    "layer": "Utilities",
+    "description": "Exporter utility for simulation logs and related reporting outputs.",
+    "responsibilities": [
+      "Export simulation log data",
+      "Support reports/output analysis workflows",
+      "Keep export logic outside Views"
+    ],
+    "dependsOn": [
+      "simulation-log-vm"
+    ]
+  },
+  {
+    "id": "bulk-observable-collection",
+    "name": "BulkObservableCollection.cs",
+    "path": "Utilities/BulkObservableCollection.cs",
+    "type": "Utility",
+    "layer": "Utilities",
+    "description": "Observable collection implementation optimized for bulk updates.",
+    "responsibilities": [
+      "Reduce notification overhead",
+      "Support large UI-bound collections",
+      "Improve performance during batch changes"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "url-helper",
+    "name": "URLHelper.cs",
+    "path": "Utilities/URLHelper.cs",
+    "type": "Utility",
+    "layer": "Utilities",
+    "description": "Helper for URL opening, formatting, or navigation-related URL operations.",
+    "responsibilities": [
+      "Centralize URL logic",
+      "Support external links/help flows",
+      "Keep URL handling reusable"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "utility-classes",
+    "name": "UtilityClasses.cs",
+    "path": "Utilities/UtilityClasses.cs",
+    "type": "Utility",
+    "layer": "Utilities",
+    "description": "Shared utility classes used across the application.",
+    "responsibilities": [
+      "Provide common utility types",
+      "Reduce repeated helper structures",
+      "Support shared application logic"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "utility-root",
+    "name": "Utility.cs",
+    "path": "Utility.cs",
+    "type": "Utility",
+    "layer": "Application",
+    "description": "Root-level utility file used by application startup or shared runtime flows.",
+    "responsibilities": [
+      "Provide application-level helpers",
+      "Support startup/runtime operations",
+      "Keep shared helper methods centralized"
+    ],
+    "dependsOn": []
+  },
+  {
+    "id": "base-canvas-object",
+    "name": "BaseCanvasObject.cs",
+    "path": "ViewModel/DesignComponentsViewModel/BaseCanvasObject.cs",
+    "type": "Design VM",
+    "layer": "ViewModels / Design Canvas",
+    "description": "Base ViewModel/object for canvas entities such as blocks, connectors, and connection lines.",
+    "responsibilities": [
+      "Provide common canvas object state",
+      "Standardize canvas element behavior",
+      "Serve block/connector/line ViewModels"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "history-item-vm",
+    "name": "HistoryItemViewModel.cs",
+    "path": "ViewModel/DesignComponentsViewModel/HistoryItemViewModel.cs",
+    "type": "Design VM",
+    "layer": "ViewModels / Design Canvas",
+    "description": "ViewModel representing an undo/redo or history entry in the design canvas workflow.",
+    "responsibilities": [
+      "Represent canvas history entries",
+      "Support undo/redo operations",
+      "Track design changes"
+    ],
+    "dependsOn": [
+      "design-canvas-vm"
+    ]
+  },
+  {
+    "id": "floating-block-view",
+    "name": "FloatingBlock.xaml / .cs",
+    "path": "View/DesignComponents/FloatingBlock.xaml",
+    "type": "Design View",
+    "layer": "View / Design Canvas",
+    "description": "Floating visual block used during drag/drop or detached canvas interactions.",
+    "responsibilities": [
+      "Render a floating block preview",
+      "Support drag/drop feedback",
+      "Connect to CanvasBlockViewModel state"
+    ],
+    "dependsOn": [
+      "canvas-block-vm",
+      "design-canvas-vm"
+    ]
+  },
+  {
+    "id": "life-field-view",
+    "name": "LifeOfField.xaml / .cs",
+    "path": "View/CasePropertiesComponents/LifeOfField.xaml",
+    "type": "Property View",
+    "layer": "View / Case Properties",
+    "description": "Property section View for life-of-field inputs and related case parameters.",
+    "responsibilities": [
+      "Render life-of-field properties",
+      "Bind to LifeOfFieldViewModel",
+      "Keep the section visually isolated"
+    ],
+    "dependsOn": [
+      "life-field-vm",
+      "variable-vms"
+    ]
+  },
+  {
+    "id": "life-field-vm",
+    "name": "LifeOfFieldViewModel.cs",
+    "path": "ViewModel/ComponentViewModel/LifeOfFieldViewModel.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "ViewModel for life-of-field property inputs and values.",
+    "responsibilities": [
+      "Expose life-of-field variables",
+      "Support property editing",
+      "Serve the LifeOfField View"
+    ],
+    "dependsOn": [
+      "variable-vms",
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "operating-expenses-view",
+    "name": "OperatingExpenses.xaml / .cs",
+    "path": "View/CasePropertiesComponents/OperatingExpenses.xaml",
+    "type": "Property View",
+    "layer": "View / Case Properties",
+    "description": "Property section View for operating expense values and inputs.",
+    "responsibilities": [
+      "Render OPEX properties",
+      "Bind to OperatingExpensesViewModel",
+      "Separate OPEX UI from logic"
+    ],
+    "dependsOn": [
+      "operating-expenses-vm",
+      "variable-vms"
+    ]
+  },
+  {
+    "id": "operating-expenses-vm",
+    "name": "OperatingExpensesViewModel.cs",
+    "path": "ViewModel/ComponentViewModel/OperatingExpensesViewModel.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "ViewModel for operating expense property data.",
+    "responsibilities": [
+      "Expose OPEX variables",
+      "Support OPEX editing",
+      "Serve the OperatingExpenses View"
+    ],
+    "dependsOn": [
+      "variable-vms",
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "drilling-expenses-view",
+    "name": "DrillingExpenses.xaml / .cs",
+    "path": "View/CasePropertiesComponents/DrillingExpenses.xaml",
+    "type": "Property View",
+    "layer": "View / Case Properties",
+    "description": "Property section View for drilling/CAPEX expense inputs.",
+    "responsibilities": [
+      "Render drilling expense properties",
+      "Bind to DrillingExpensesViewModel",
+      "Keep expense UI modular"
+    ],
+    "dependsOn": [
+      "drilling-expenses-vm",
+      "variable-vms"
+    ]
+  },
+  {
+    "id": "drilling-expenses-vm",
+    "name": "DrillingExpensesViewModel.cs",
+    "path": "ViewModel/ComponentViewModel/DrillingExpensesViewModel.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "ViewModel for drilling/CAPEX expense property data.",
+    "responsibilities": [
+      "Expose drilling expense variables",
+      "Support expense editing",
+      "Serve the DrillingExpenses View"
+    ],
+    "dependsOn": [
+      "variable-vms",
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "reservoir-profiling-view",
+    "name": "ReservoirProfiling.xaml / .cs",
+    "path": "View/CasePropertiesComponents/ReservoirProfiling.xaml",
+    "type": "Property View",
+    "layer": "View / Case Properties",
+    "description": "Property section View for reservoir profiling inputs and values.",
+    "responsibilities": [
+      "Render reservoir profiling properties",
+      "Bind to ReservoirProfilingViewModel",
+      "Keep reservoir UI modular"
+    ],
+    "dependsOn": [
+      "reservoir-profiling-vm",
+      "variable-vms"
+    ]
+  },
+  {
+    "id": "reservoir-profiling-vm",
+    "name": "ReservoirProfilingViewModel.cs",
+    "path": "ViewModel/ComponentViewModel/ReservoirProfilingViewModel.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "ViewModel for reservoir profiling property data.",
+    "responsibilities": [
+      "Expose reservoir profiling variables",
+      "Support reservoir data editing",
+      "Serve the ReservoirProfiling View"
+    ],
+    "dependsOn": [
+      "variable-vms",
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "list-properties-vm",
+    "name": "ListPropertiesViewModel.cs",
+    "path": "ViewModel/ComponentViewModel/ListPropertiesViewModel.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "ViewModel for grouped/list-based property editing.",
+    "responsibilities": [
+      "Expose property groups",
+      "Support list-based property editing",
+      "Serve ListProperties UI"
+    ],
+    "dependsOn": [
+      "variable-vms",
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "hierarchy-snapshot-view",
+    "name": "HierarchySnapshotVisualization.xaml / .cs",
+    "path": "View/CasePropertiesComponents/HierarchySnapshotVisualization.xaml",
+    "type": "Property View",
+    "layer": "View / Case Properties",
+    "description": "Visualization component for showing a snapshot of the case hierarchy.",
+    "responsibilities": [
+      "Render hierarchy snapshot",
+      "Bind to HierarchySnapshotViewModel",
+      "Support case structure inspection"
+    ],
+    "dependsOn": [
+      "hierarchy-snapshot-vm",
+      "tree-objects"
+    ]
+  },
+  {
+    "id": "hierarchy-snapshot-vm",
+    "name": "HierarchySnapshotViewModel.cs",
+    "path": "ViewModel/ComponentViewModel/HierarchySnapshotViewModel.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "ViewModel that prepares hierarchy snapshot data for visualization.",
+    "responsibilities": [
+      "Prepare hierarchy snapshot data",
+      "Expose tree/hierarchy state",
+      "Serve hierarchy visualization"
+    ],
+    "dependsOn": [
+      "tree-objects",
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "simulation-log-view",
+    "name": "SimulationLogVisualization.xaml / .cs",
+    "path": "View/CasePropertiesComponents/SimulationLogVisualization.xaml",
+    "type": "Property View",
+    "layer": "View / Case Properties",
+    "description": "Visualization component for simulation logs inside the case properties area.",
+    "responsibilities": [
+      "Render simulation log entries",
+      "Bind to SimulationLogViewModel",
+      "Support log inspection"
+    ],
+    "dependsOn": [
+      "simulation-log-vm"
+    ]
+  },
+  {
+    "id": "simulation-log-vm",
+    "name": "SimulationLogViewModel.cs",
+    "path": "ViewModel/ComponentViewModel/SimulationLogViewModel.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "ViewModel that manages simulation log data and presentation state.",
+    "responsibilities": [
+      "Expose simulation logs",
+      "Support log filtering/export flows",
+      "Serve simulation log visualization"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "simulation-log-overlays",
+    "name": "SimulationLogComponents/*.xaml",
+    "path": "View/SimulationLogComponents",
+    "type": "Property View",
+    "layer": "View / Case Properties",
+    "description": "Simulation log overlay components such as CompanyInfoOverlay, ExportLogsOverlay, LogItemView, and SimulationLogOverlay.",
+    "responsibilities": [
+      "Render log overlays",
+      "Support log export/details workflows",
+      "Keep simulation log UI modular"
+    ],
+    "dependsOn": [
+      "simulation-log-overlay-vm",
+      "company-info-vm",
+      "export-overlay-vm",
+      "log-item-vm"
+    ]
+  },
+  {
+    "id": "simulation-log-overlay-vm",
+    "name": "SimulationLogOverlay.cs",
+    "path": "ViewModel/ComponentViewModel/SimulationLogOverlay.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "ViewModel/controller for simulation log overlay state.",
+    "responsibilities": [
+      "Control simulation log overlay state",
+      "Coordinate log overlay interactions",
+      "Serve simulation overlay Views"
+    ],
+    "dependsOn": [
+      "simulation-log-vm"
+    ]
+  },
+  {
+    "id": "company-info-vm",
+    "name": "CompanyInfoViewModel.cs",
+    "path": "ViewModel/ComponentViewModel/CompanyInfoViewModel.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "ViewModel for company information displayed in simulation log overlays.",
+    "responsibilities": [
+      "Expose company info",
+      "Support simulation log metadata",
+      "Serve CompanyInfoOverlay"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "export-overlay-vm",
+    "name": "ExportOverlayViewModel.cs",
+    "path": "ViewModel/ComponentViewModel/ExportOverlayViewModel.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "ViewModel for export overlay state and export options.",
+    "responsibilities": [
+      "Control export overlay state",
+      "Expose export options",
+      "Coordinate export workflows"
+    ],
+    "dependsOn": [
+      "simulation-log-exporter",
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "log-item-vm",
+    "name": "LogItemViewModel.cs",
+    "path": "ViewModel/ComponentViewModel/LogItemViewModel.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "ViewModel representing a single simulation log item.",
+    "responsibilities": [
+      "Represent a log entry",
+      "Expose log display state",
+      "Serve LogItemView"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "learn-view",
+    "name": "LearnView.xaml / LearnViewModel.cs",
+    "path": "View/LearnView.xaml + ViewModel/LearnViewModel.cs",
+    "type": "Feature",
+    "layer": "Views",
+    "description": "Learning/help feature composed of a View and ViewModel.",
+    "responsibilities": [
+      "Display learning/help content",
+      "Prepare learning screen state",
+      "Separate learning UI and logic"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "license-view",
+    "name": "LicenseView.xaml / LicenseViewModel.cs",
+    "path": "View/LicenseView.xaml + ViewModel/LicenseViewModel.cs",
+    "type": "Feature",
+    "layer": "Views",
+    "description": "License feature composed of a View and ViewModel.",
+    "responsibilities": [
+      "Display license information",
+      "Expose license screen state",
+      "Separate license UI and logic"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "output-analysis-view",
+    "name": "OutputAnalysisView.xaml / OutputAnalysisViewModel.cs",
+    "path": "View/OutputAnalysisView.xaml + ViewModel/OutputAnalysisViewModel.cs",
+    "type": "Feature",
+    "layer": "Views",
+    "description": "Output analysis feature composed of its own View and ViewModel.",
+    "responsibilities": [
+      "Display output analysis data",
+      "Prepare analysis state",
+      "Separate analysis UI and logic"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "support-view",
+    "name": "SupportView.xaml / SupportViewModel.cs",
+    "path": "View/SupportView.xaml + ViewModel/SupportViewModel.cs",
+    "type": "Feature",
+    "layer": "Views",
+    "description": "Support/helpdesk feature composed of its own View and ViewModel.",
+    "responsibilities": [
+      "Display support information",
+      "Prepare support screen state",
+      "Separate support UI and logic"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "reservoir-profile-view",
+    "name": "ReservoirProfile.xaml / .cs",
+    "path": "View/ReservoirProfile.xaml",
+    "type": "Feature",
+    "layer": "Views",
+    "description": "Standalone reservoir profile View used by reservoir-related workflows.",
+    "responsibilities": [
+      "Render reservoir profile UI",
+      "Support reservoir workflows",
+      "Keep profile visualization separate"
+    ],
+    "dependsOn": [
+      "reservoir-profiling-vm"
+    ]
+  },
+  {
+    "id": "utility-control-view",
+    "name": "UtilityControl.xaml / .cs",
+    "path": "View/UtilityControl.xaml",
+    "type": "View",
+    "layer": "Views",
+    "description": "Utility control View used by shared or supporting UI workflows.",
+    "responsibilities": [
+      "Render utility UI",
+      "Support reusable visual interactions",
+      "Keep utility UI modular"
+    ],
+    "dependsOn": [
+      "ui-helpers"
+    ]
+  },
+  {
+    "id": "wpf-view-helper",
+    "name": "WpfViewHelper.cs",
+    "path": "View/WpfViewHelper.cs",
+    "type": "Utility",
+    "layer": "Utilities",
+    "description": "View helper utilities specific to WPF visual tree or View operations.",
+    "responsibilities": [
+      "Support WPF View operations",
+      "Centralize visual tree helpers",
+      "Reduce repeated View utility code"
+    ],
+    "dependsOn": [
+      "ui-helpers"
+    ]
+  },
+  {
+    "id": "screening-input-vm",
+    "name": "ScreeningInputViewModel.cs",
+    "path": "ViewModel/ScreeningInputViewModel.cs",
+    "type": "ViewModel",
+    "layer": "ViewModels",
+    "description": "ViewModel for screening input data used by the case builder.",
+    "responsibilities": [
+      "Expose screening inputs",
+      "Coordinate parent/variable ViewModels",
+      "Serve CaseBuilderView"
+    ],
+    "dependsOn": [
+      "variable-vms",
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "tab-vm",
+    "name": "TabViewModel.cs",
+    "path": "ViewModel/ComponentViewModel/TabViewModel.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "ViewModel representing an opened case tab in the case manager.",
+    "responsibilities": [
+      "Represent tab state",
+      "Support open/close tab workflows",
+      "Serve CaseManagerViewModel"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "cost-index-modal-vm",
+    "name": "CostIndexModalViewModel.cs",
+    "path": "ViewModel/ComponentViewModel/CostIndexModalViewModel.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "ViewModel for the cost index modal used by case management workflows.",
+    "responsibilities": [
+      "Control cost index modal state",
+      "Expose cost index data",
+      "Serve cost-related modal UI"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "detach-window-vm",
+    "name": "DetachWindowViewModel.cs",
+    "path": "ViewModel/ComponentViewModel/DetachWindowViewModel.cs",
+    "type": "Component VM",
+    "layer": "ViewModels / Components",
+    "description": "ViewModel for detachable/floating window behavior.",
+    "responsibilities": [
+      "Control detached window state",
+      "Support moving components outside the main shell",
+      "Serve detachable UI components"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "reactive-model-base",
+    "name": "ReactiveModelBase.cs",
+    "path": "ViewModel/ReactiveModelBase.cs",
+    "type": "Base VM",
+    "layer": "ViewModels",
+    "description": "Base reactive model class used by ViewModels or model wrappers.",
+    "responsibilities": [
+      "Provide reactive/base notification behavior",
+      "Standardize reactive objects",
+      "Support MVVM model wrappers"
+    ],
+    "dependsOn": [
+      "viewmodel-base"
+    ]
+  },
+  {
+    "id": "wrapper-base",
+    "name": "WrapperBase.cs",
+    "path": "ViewModel/WrapperBase.cs",
+    "type": "Base VM",
+    "layer": "ViewModels",
+    "description": "Base wrapper class used to expose model data safely to the ViewModel/UI layer.",
+    "responsibilities": [
+      "Wrap model objects",
+      "Expose UI-friendly state",
+      "Support consistent wrapper behavior"
+    ],
+    "dependsOn": [
+      "reactive-model-base"
+    ]
+  },
+  {
+    "id": "parent-variable-vms",
+    "name": "Parent/Variable ViewModels",
+    "path": "ViewModel/Parent*.cs + ViewModel/Variable*.cs",
+    "type": "ViewModel Group",
+    "layer": "ViewModels",
+    "description": "Detailed variable hierarchy ViewModels, including parent properties, parent screening, parent variable, variable category, variable group, and variable item ViewModels.",
+    "responsibilities": [
+      "Represent variable hierarchy",
+      "Support grouped editing",
+      "Serve property and screening screens"
+    ],
+    "dependsOn": [
+      "variable-vms",
+      "wrapper-base"
+    ]
+  },
+  {
+    "id": "dummy-single-variable-vm",
+    "name": "DummySingleVariableViewModel.cs",
+    "path": "ViewModel/DummySingleVariableViewModel.cs",
+    "type": "ViewModel",
+    "layer": "ViewModels",
+    "description": "Dummy/specialized single-variable ViewModel used where a placeholder or simplified variable is required.",
+    "responsibilities": [
+      "Represent placeholder variable state",
+      "Support special UI cases",
+      "Reuse single variable patterns"
+    ],
+    "dependsOn": [
+      "variable-vms"
+    ]
+  },
+  {
+    "id": "project-properties",
+    "name": "Project Properties",
+    "path": "Properties/*.cs + Properties/*.resx + Properties/*.settings",
+    "type": "Resource Group",
+    "layer": "Resources",
+    "description": "Generated project property files such as AssemblyInfo, Resources, and Settings.",
+    "responsibilities": [
+      "Store assembly metadata",
+      "Expose generated resources/settings",
+      "Support .NET project configuration"
+    ],
+    "dependsOn": [
+      "resources"
+    ]
+  }
+]
